@@ -41,10 +41,13 @@ headline(headline(PkgName, Bytes)) -->
 %%     "depends_build","depends_lib","depends_run","epoch",
 %%     "universal","macosx","darwin"].
 
+parse(_P, []).
+parse(P, [K|Ks]) :- parse(P,K), parse(P,Ks).
+
 parse(P, key(description, many(D))) :-
-    append(D,Flat),
-    string_to_list(S,Flat),
+    string_to_list(S,D),
     assert(description(P,S)).
+
 
 %% feeder
 
@@ -54,9 +57,10 @@ eat_file(Fname) :- open(Fname, read, F), eat_lines(F).
 eat_lines(F) :-
     read_line_to_codes(F,S1),
     (S1 = end_of_file -> true;
-        phrase(headline(headline(P,Bytes)),S1),
+        phrase(headline(headline(P,_Bytes)),S1),
         writef('* got pkg: %w\n', [P]),
         read_line_to_codes(F,S2),
         phrase(keys(Ks),S2),
+        parse(P,Ks),
         eat_lines(F)
     ).
