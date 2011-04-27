@@ -52,11 +52,6 @@ headline(headline(PkgName, Bytes)) -->
     nonblanks(P), whites, integer(Bytes),
     {atom_codes(PkgName,P)}.
  
-%%   ["version","revision","categories","variants","variant_desc",
-%%     "platforms","description","long_description","portdir","homepage",
-%%     "depends_build","depends_lib","depends_run","epoch",
-%%     "universal","macosx","darwin"].
-
 parse(_P, []).
 parse(P, [K|Ks]) :- parse(P,K), parse(P,Ks).
 
@@ -115,14 +110,13 @@ parse(P, key(categories, many(X))) :-
 
 %% feeder
 
-eat_file :- eat_file('data/pi1').
+eat_file :- eat_file('data/pi0').
 eat_file(Fname) :- open(Fname, read, F), eat_lines(F).
 
 eat_lines(F) :-
     read_line_to_codes(F,S1),
     (S1 = end_of_file -> !;
         phrase(headline(headline(P,_Bytes)),S1),
-        writef('* got pkg: %w\n', [P]),
         read_line_to_codes(F,S2),
         phrase(keys(Ks),S2),
         parse(P,Ks),
