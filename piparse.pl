@@ -9,6 +9,9 @@ list_to_dl(S,DL-E) :- append(S,E,DL).
 
 %% lexer
 
+split([]) --> [].
+split([X|Xs]) --> nonblanks(X), {X\=[]}, whites, split(Xs).
+
 keys([K|Ks]) --> key(K), whites, keys(Ks).
 keys([]) --> [].
 
@@ -70,16 +73,19 @@ parse(_P, key(epoch, one(_X))).
 
 parse(_P, key(maintainers, _OneOrMany)).
 
-parse(_P, key(long_description, many(_X))).
+parse(_P, key(long_description, _OneOrMany)).
 
 parse(P, key(version, one(V))) :- assert( version(P, V) ).
 
 parse(_P, key(revision, one(_X))).
 
-parse(P, key(categories, one(C))) :- assert( categories(P, [C]) ).
-parse(P, key(categories, many(Cs))) :-
-    findall(S, (member(C,Cs),string_to_list(S,C)), Ss),
-    assert( categories(P, Ss) ).
+parse(P, key(categories, one(C))) :-
+    string_to_atom(C,A),
+    assert( categories(P, [A]) ).
+parse(P, key(categories, many(X))) :-
+    phrase(split(Cs), X),
+    findall(A, (member(C,Cs),atom_codes(A,C)), As),
+    assert( categories(P, As) ).
 
 %% feeder
 
