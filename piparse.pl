@@ -110,7 +110,7 @@ eat_file(Fname) :- open(Fname, read, F), eat_lines(F).
 
 eat_lines(F) :-
     read_line_to_codes(F,S1),
-    (S1 = end_of_file -> true;
+    (S1 = end_of_file -> !;
         phrase(headline(headline(P,_Bytes)),S1),
         writef('* got pkg: %w\n', [P]),
         read_line_to_codes(F,S2),
