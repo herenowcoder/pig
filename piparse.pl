@@ -51,6 +51,15 @@ parse(P, key(name, one(X))) :- string_to_atom(X,P).
 
 parse(P, key(portdir, one(X))) :- assert( portdir(P, X) ).
 
+parse(P, key(depends_fetch, many(_Deps))). % todo
+parse(P, key(depends_fetch, one(_Deps))). % todo
+
+parse(P, key(depends_extract, many(_Deps))). % todo
+parse(P, key(depends_extract, one(_Deps))). % todo
+
+parse(P, key(depends_build, many(_Deps))). % todo
+parse(P, key(depends_build, one(_Deps))). % todo
+
 parse(P, key(depends_lib, many(_Deps))). % todo
 parse(P, key(depends_lib, one(_Deps))). % todo
 
@@ -64,10 +73,17 @@ parse(_P, key(variant_desc, _OneOrMany)).
 parse(P, key(description, many(D))) :-
     string_to_list(S,D),
     assert( description(P, S) ).
+parse(P, key(description, one(D))) :-
+    string_to_atom(S,D),
+    assert( description(P, S) ).
 
-parse(_P, key(homepage, one(_X))).
+parse(_P, key(homepage, _OneOrMany)).
 
 parse(_P, key(platforms, _OneOrMany)).
+
+parse(_P, key(license, _OneOrMany)).
+
+parse(_P, key(replaced_by, _OneOrMany)).
 
 parse(_P, key(epoch, one(_X))).
 
