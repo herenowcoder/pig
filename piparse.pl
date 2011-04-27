@@ -20,7 +20,7 @@ key(key(K,V)) --> nonblanks(X), whites, values(V), {X\=[], atom_codes(K,X)}.
 values(many(X)) --> bracketed(X), !. % X as list
 values(one(S)) --> nonblanks(X), {string_to_list(S,X)}. % S as string
 
-bracketed(X) --> "{", in_brackets(X-[]), "}".
+bracketed(S) --> "{", in_brackets(X-[]), "}", {string_to_list(S,X)}.
 
 in_brackets(E-E) --> [].
 in_brackets(Zs) --> "{", !, in_brackets(Xs), "}", in_brackets(Ys),
@@ -70,12 +70,8 @@ parse(P, key(variants, _OneOrMany)). % todo
 
 parse(_P, key(variant_desc, _OneOrMany)).
 
-parse(P, key(description, many(D))) :-
-    string_to_list(S,D),
-    assert( description(P, S) ).
-parse(P, key(description, one(D))) :-
-    string_to_atom(S,D),
-    assert( description(P, S) ).
+parse(P, key(description, many(D))) :- assert( description(P, D) ).
+parse(P, key(description, one(D)))  :- assert( description(P, D) ).
 
 parse(_P, key(homepage, _OneOrMany)).
 
@@ -99,7 +95,8 @@ parse(P, key(categories, one(C))) :-
     string_to_atom(C,A),
     assert( categories(P, [A]) ).
 parse(P, key(categories, many(X))) :-
-    phrase(split(Cs), X),
+    string_to_list(X,S),
+    phrase(split(Cs), S),
     findall(A, (member(C,Cs),atom_codes(A,C)), As),
     assert( categories(P, As) ).
 
