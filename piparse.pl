@@ -33,6 +33,19 @@ in_brackets(Ys) -->
     in_brackets(Xs),
     {list_to_dl(S,X), +dl(X, Xs, Ys)}.
 
+bracketed2(X) --> "{", in_brackets2(X), "}".
+
+in_brackets2([]) --> [].
+in_brackets2(Zs) --> "{", !, in_brackets2(Xs), "}", in_brackets2(Ys),
+    {string_to_atom(B1,'{'), string_to_atom(B2,'}'),
+    string_concat(B1,Xs, Z1),
+    string_concat(Z1,B2, Z2),
+    string_concat(Z2,Ys, Zs)}.
+in_brackets2(Ys) -->
+    string_without("{}",S), {S\=[]},
+    in_brackets2(Xs),
+    {string_to_list(X,S), string_concat(X, Xs, Ys)}.
+
 %% parser
 
 headline(headline(PkgName, Bytes)) --> 
