@@ -111,14 +111,16 @@ parse(P, key(categories, many(X))) :-
 %% feeder
 
 eat_file :- eat_file('data/pi0').
-eat_file(Fname) :- open(Fname, read, F), eat_lines(F).
+eat_file(Fname) :- open(Fname, read, File), eat_lines(File).
 
-eat_lines(F) :-
-    read_line_to_codes(F,S1),
+eat_lines(File) :- eat_lines(File,0).
+eat_lines(File,RecordCount) :-
+    read_line_to_codes(File,S1),
     (S1 = end_of_file -> !;
         phrase(headline(headline(P,_Bytes)),S1),
-        read_line_to_codes(F,S2),
+        read_line_to_codes(File,S2),
         phrase(keys(Ks),S2),
         parse(P,Ks),
-        eat_lines(F)
+        RC1 is RecordCount+1,
+        eat_lines(File,RC1)
     ).
