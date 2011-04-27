@@ -44,10 +44,42 @@ headline(headline(PkgName, Bytes)) -->
 parse(_P, []).
 parse(P, [K|Ks]) :- parse(P,K), parse(P,Ks).
 
+parse(P, key(name, one(X))) :- string_to_atom(X,P).
+
+parse(P, key(portdir, one(X))) :- assert( portdir(P, X) ).
+
+parse(P, key(depends_lib, many(_Deps))). % todo
+parse(P, key(depends_lib, one(_Deps))). % todo
+
+parse(P, key(depends_run, many(_Deps))). % todo
+parse(P, key(depends_run, one(_Deps))). % todo
+
+parse(P, key(variants, _OneOrMany)). % todo
+
+parse(_P, key(variant_desc, _OneOrMany)).
+
 parse(P, key(description, many(D))) :-
     string_to_list(S,D),
-    assert(description(P,S)).
+    assert( description(P, S) ).
 
+parse(_P, key(homepage, one(_X))).
+
+parse(_P, key(platforms, _OneOrMany)).
+
+parse(_P, key(epoch, one(_X))).
+
+parse(_P, key(maintainers, _OneOrMany)).
+
+parse(_P, key(long_description, many(_X))).
+
+parse(P, key(version, one(V))) :- assert( version(P, V) ).
+
+parse(_P, key(revision, one(_X))).
+
+parse(P, key(categories, one(C))) :- assert( categories(P, [C]) ).
+parse(P, key(categories, many(Cs))) :-
+    findall(S, (member(C,Cs),string_to_list(S,C)), Ss),
+    assert( categories(P, Ss) ).
 
 %% feeder
 
