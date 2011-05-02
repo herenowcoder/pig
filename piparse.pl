@@ -9,8 +9,18 @@ list_to_dl(S,DL-E) :- append(S,E,DL).
 
 %% lexer
 
-split([]) --> [].
+eat(C, [C|Xs]) --> C, eat(C, Xs).
+eat(C, [C]) --> C.
+
 split([X|Xs]) --> nonblanks(X), {X\=[]}, whites, split(Xs).
+split([]) --> [].
+
+split_with1(Delimiter, [X|Xs]) -->
+    string_without(Delimiter,X), {X\=[]}, Delimiter,
+    split_with1(Delimiter, Xs).
+split_with1(Delimiter, [LastX]) -->
+    string_without(Delimiter,LastX), {LastX\=[]}.
+split_with1(_Delimiter, []) --> [].
 
 keys([K|Ks]) --> key(K), whites, keys(Ks).
 keys([]) --> [].
