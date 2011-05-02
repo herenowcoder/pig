@@ -69,22 +69,13 @@ parse(P, key(name, one(X))) :- string_to_atom(X,P).
 
 parse(P, key(portdir, one(X))) :- assert( portdir(P, X) ).
 
-parse(P, key(depends_fetch, many(_Deps))). % todo
-parse(P, key(depends_fetch, one(_Deps))). % todo
+parse(P, key(depends_fetch,   V)) :- parse_deps(P, dep_fetch,   V).
+parse(P, key(depends_extract, V)) :- parse_deps(P, dep_extract, V).
+parse(P, key(depends_build,   V)) :- parse_deps(P, dep_build,   V).
+parse(P, key(depends_lib,     V)) :- parse_deps(P, dep_lib,     V).
+parse(P, key(depends_run,     V)) :- parse_deps(P, dep_run,     V).
 
-parse(P, key(depends_extract, many(_Deps))). % todo
-parse(P, key(depends_extract, one(_Deps))). % todo
-
-parse(P, key(depends_build, many(_Deps))). % todo
-parse(P, key(depends_build, one(_Deps))). % todo
-
-parse(P, key(depends_lib, many(_Deps))). % todo
-parse(P, key(depends_lib, one(_Deps))). % todo
-
-parse(P, key(depends_run, many(_Deps))). % todo
-parse(P, key(depends_run, one(_Deps))). % todo
-
-parse(P, key(variants, _OneOrMany)). % todo
+parse(_P, key(variants, _OneOrMany)). % todo
 
 parse(_P, key(variant_desc, _OneOrMany)).
 
@@ -117,6 +108,31 @@ parse(P, key(categories, many(X))) :-
     phrase(split(Cs), S),
     findall(A, (member(C,Cs),atom_codes(A,C)), As),
     assert( categories(P, As) ).
+
+
+parse_deps(P, DepType, many(DepsStr)) :-
+    string_to_list(DepsStr, S), phrase(split(Ds), S),
+    forall(member(D, Ds),  parse_dep(P, DepType, D)).
+parse_deps(P, DepType, one(DepStr)) :-
+    string_to_list(DepStr, D),
+    parse_dep(P, DepType, D).
+
+parse_dep(P, DepType, S) :-
+    phrase(split_with1(":", Tokens), S),
+    parse_dep_(P, DepType, Tokens).
+parse_dep_(P, DepType, ["port",P1S]) :-
+    atom_codes(P1,P1S),
+    assert( dep(P, DepType, strict(port(P1))) ).
+parse_dep_(P, DepType, ["lib",_FileS,P1S]) :-
+    atom_codes(P1,P1S),
+    assert( dep(P, DepType, lib(port(P1))) ).
+parse_dep_(P, DepType, ["path",_PathS,P1S]) :-
+    atom_codes(P1,P1S),
+    assert( dep(P, DepType, path(port(P1))) ).
+parse_dep_(P, DepType, ["bin",_PathS,P1S]) :-
+    atom_codes(P1,P1S),
+    assert( dep(P, DepType, bin(port(P1))) ).
+
 
 %% feeder
 
