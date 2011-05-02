@@ -124,3 +124,8 @@ eat_lines(File,RecordCount) :-
         RC1 is RecordCount+1,
         eat_lines(File,RC1)
     ).
+
+freeze_db :-
+    eat_file,
+    compile_predicates([portdir/2, version/2, description/2]).
+    %garbage_collect.
