@@ -11,4 +11,8 @@ The ideas & solutions exploited here may be outstandingly usable in
 any package manager for any distribution of a large codebase.
 
 
+The current status is that parser can handle original ports index but with
+multilines converted to single lines.
+
+
 Stay tuned.
